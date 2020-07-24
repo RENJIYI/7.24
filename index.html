@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>打字游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            height: 100%;
+            width: 100%;
+            background: url('background.jpg');
+            background-size: cover;
+            position: relative;
+        }
+        .starting{
+            display: block;
+            width: 80px;
+            height: 80px;
+            top: 346px;
+            left: 50%;
+            margin-left: -10px;
+            position: absolute;
+        }
+        .card{
+            width: 200px;
+            height: 200px;
+            position: absolute;
+            right: 100px;
+            display: flex;
+        }
+        .card > div{
+            width: 80px;
+            margin: 10px;
+            height: 120px;
+        }
+        .title{
+            width: 100%;
+            height: 50px;
+            line-height: 50px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            color: black;
+        }
+        .records{
+            width: 100%;
+            height: 70px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            color: black;
+        }
+        .lifes{
+            width: 100%;
+            height: 70px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <img src="开始.png" alt="" class="starting">
+    <div class="card">
+        <div>
+            <div class="title">得分</div>
+            <div class="records">0</div>
+        </div>
+        <div>
+            <div class="title">生命值</div>
+            <div class="lifes">100</div>
+        </div>
+    </div>
+    <script>
+        //通过Unicode循环获得字母
+        var letters=[];
+        for(var i=0;i<26;i++){
+            letters.push(String.fromCharCode(65+i));
+        }
+        //存放字母
+        var divs = [];
+        //获取元素的初始top，存放字母的初始高度
+        var startTop = [];
+        function create(num){
+            var current = [];
+            for (var i = 0; i < num; i++) {
+                current.push(letters[Math.floor(letters.length * Math.random())]);
+            }
+            for (var i = 0; i < current.length; i++) {
+                var div = document.createElement("div");
+                div.innerHTML = current[i];
+                div.style.cssText = `position:absolute;
+                left:${(document.documentElement.clientWidth - 100) * Math.random()}px;
+                top:${40 * Math.random()}px;
+                font-size:${50 + 10 * Math.random()}px;
+                display:block;
+                width:50px;
+                height:50px;
+                text-align:center;
+                line-height:50px;
+                color:red;
+                background:rgba(${Math.ceil(Math.random()*255)},${Math.ceil(Math.random()*255)},${Math.ceil(Math.random()*255)});
+                border-radius:50%;
+                `;
+                document.body.appendChild(div);
+                divs.push(div);
+            }
+            for (var i = 0; i < divs.length; i++) {
+                // console.log(divs[i].offsetTop);
+                var topval = divs[i].offsetTop;
+                startTop.push(topval);
+            }
+        }
+        //开始按钮点击事件
+        var startBtn = document.querySelector('.starting');
+        startBtn.onclick = function () {
+            create(6);
+            startBtn.style.display = "none";
+        }
+        //进行比对操作
+        var high = document.documentElement.clientHeight;
+        var lifes = document.querySelector(".lifes");
+        var records = document.querySelector(".records");
+        var speed = 5;
+        function go(){
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].offsetTop > high) {
+                    document.body.removeChild(divs[i]);
+                    divs.splice(i, 1);
+                    
+                    lifes.innerHTML = parseInt(lifes.innerHTML)-1;
+                    create(1);
+                    if(parseInt(lifes.innerHTML)<90){
+                        alert("挑战失败！重新开始！");
+                        lifes.innerHTML=100;
+                        records.innerHTML=0;
+                        for (var j = 0; j < divs.length; j++) {
+                        document.body.removeChild(divs[j]);
+                        }
+                        divs.splice(0, divs.length);
+                        startBtn.style.display = "block";
+                    }
+                } else {
+                    divs[i].style.top = divs[i].offsetTop + speed + "px";
+                }
+            }
+        }
+        var t=setInterval(go, 50)
+        document.onkeydown = function (ev) {
+            var letter = String.fromCharCode(ev.keyCode);
+            for (var i = 0; i < divs.length; i++) {
+                if (divs[i].innerHTML == letter) {
+                    document.body.removeChild(divs[i]);
+                    divs.splice(i, 1);
+                    records.innerHTML = parseInt(records.innerHTML)+1;
+                    create(1);
+                    if(parseInt(records.innerHTML)==10){
+                        speed=10;
+                        alert("进入普通模式！加油！");
+                        create(2);
+                    }
+                    if(parseInt(records.innerHTML)==20){
+                        speed=12;
+                        alert("进入困难模式！加油！");
+                        create(2);
+                    }
+                    break;
+                }
+            }
+            
+            
+        }
+    </script>
+</body>
+
+<ml>
